@@ -48,7 +48,6 @@
 
         createStylesheet: function(id) {
             var style = document.createElement('style');
-            style.setAttribute('type', 'text/css');
             style.setAttribute('data-gs-style-id', id);
             if (style.styleSheet) {
                 style.styleSheet.cssText = '';
