@@ -1002,14 +1002,7 @@
     };
 
     GridStack.prototype._initStyles = function() {
-        if (this._stylesId) {
-            Utils.removeStylesheet(this._stylesId);
-        }
-        this._stylesId = 'gridstack-style-' + (Math.random() * 100000).toFixed();
-        this._styles = Utils.createStylesheet(this._stylesId);
-        if (this._styles !== null) {
-            this._styles._max = 0;
-        }
+        this._styles = null;
     };
 
     GridStack.prototype._updateStyles = function(maxHeight) {
