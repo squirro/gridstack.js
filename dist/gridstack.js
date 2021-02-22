@@ -1004,7 +1004,7 @@
         }
         this._stylesId = 'gridstack-style-' + (Math.random() * 100000).toFixed();
         this._styles = Utils.createStylesheet(this._stylesId);
-        if (this._styles !== null) {
+        if (this._styles) {
             this._styles._max = 0;
         }
     };
