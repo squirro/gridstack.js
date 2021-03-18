@@ -48,7 +48,6 @@
 
         createStylesheet: function(id) {
             var style = document.createElement('style');
-            style.setAttribute('type', 'text/css');
             style.setAttribute('data-gs-style-id', id);
             if (style.styleSheet) {
                 style.styleSheet.cssText = '';
@@ -221,10 +220,11 @@
 
     var idSeq = 0;
 
-    var GridStackEngine = function(width, onchange, floatMode, height, items) {
+    var GridStackEngine = function(width, onchange, floatMode, height, items, extraRow) {
         this.width = width;
         this.float = floatMode || false;
         this.height = height || 0;
+        this.extraRow = extraRow || false;
 
         this.nodes = items || [];
         this.onchange = onchange || function() {};
@@ -468,7 +468,8 @@
                     return clonedNode;
                 }
                 return $.extend({}, n);
-            }));
+            }),
+            this.extraRow);
 
         if (typeof clonedNode === 'undefined') {
             return true;
@@ -500,7 +501,8 @@
             null,
             this.float,
             0,
-            _.map(this.nodes, function(n) { return $.extend({}, n); }));
+            _.map(this.nodes, function(n) { return $.extend({}, n); }),
+            this.extraRow);
         clone.addNode(node);
         return clone.getGridHeight() <= this.height;
     };
@@ -564,7 +566,8 @@
     };
 
     GridStackEngine.prototype.getGridHeight = function() {
-        return _.reduce(this.nodes, function(memo, n) { return Math.max(memo, n.y + n.height); }, 0);
+        return (this.extraRow ? 1 : 0) +
+            _.reduce(this.nodes, function(memo, n) { return Math.max(memo, n.y + n.height); }, 0);
     };
 
     GridStackEngine.prototype.beginUpdate = function(node) {
@@ -736,7 +739,7 @@
                 }
             });
             self._updateStyles(maxHeight + 10);
-        }, this.opts.float, this.opts.height);
+        }, this.opts.float, this.opts.height, null, !!this.opts.acceptWidgets);
 
         if (this.opts.auto) {
             var elements = [];
@@ -1210,6 +1213,10 @@
             node.lastTriedHeight = height;
             self.grid.moveNode(node, x, y, width, height);
             self._updateContainerHeight();
+
+            if (event.type == 'resize')  {
+                $(event.target).trigger('gsresize', node);
+            }
         };
 
         var onStartMoving = function(event, ui) {
@@ -1679,7 +1686,7 @@
     };
 
     GridStack.prototype.cellWidth = function() {
-        return Math.round(this.container.outerWidth() / this.opts.width);
+        return this.container.outerWidth() / this.opts.width;
     };
 
     GridStack.prototype.getCellFromPixel = function(position, useOffset) {
